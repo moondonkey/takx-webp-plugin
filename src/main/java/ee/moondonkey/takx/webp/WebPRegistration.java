@@ -26,12 +26,12 @@ final class WebPRegistration
         }
         if (ImageIO.getImageReadersByMIMEType("image/webp").hasNext())
         {
-            LOG.info("WebP ImageIO lugeja on juba olemas, registreerimist ei tehta");
+            LOG.info("A WebP ImageIO reader is already present, skipping registration");
             return;
         }
         spi = new WebPImageReaderSpi();
         IIORegistry.getDefaultInstance().registerServiceProvider(spi, ImageReaderSpi.class);
-        LOG.info("WebP ImageIO lugeja registreeritud ({})", spi.getVendorName() + " " + spi.getVersion());
+        LOG.info("WebP ImageIO reader registered ({})", spi.getVendorName() + " " + spi.getVersion());
     }
 
     static synchronized void unregister()

@@ -9,11 +9,11 @@ import gov.takx.api.plugin.app.IAppPluginManager.AutoStartMode;
 import gov.takx.api.plugin.support.SupportedPlatformVersion;
 
 /**
- * Teeb WebP-plaadid (nt WebP MBTiles) TAKX-is loetavaks.
+ * Makes WebP tiles (e.g. WebP MBTiles) readable in TAKX.
  *
- * TAKX dekodeerib kaardiplaadid javax.imageio kaudu, millel WebP lugejat pole.
- * Plugin registreerib TwelveMonkeys WebP lugeja ImageIO globaalsesse registrisse.
- * Register on kogu protsessi peale ühine, seega klassilaadurite eraldus ei sega.
+ * TAKX decodes map tiles through javax.imageio, which has no WebP reader.
+ * This plugin registers the TwelveMonkeys WebP reader in the global ImageIO registry.
+ * The registry is shared by the whole process, so class loader isolation does not matter.
  */
 @AppPlugin(
         spec = @PluginSpecification(
@@ -24,16 +24,16 @@ import gov.takx.api.plugin.support.SupportedPlatformVersion;
                 minimumSupportedVersion = SupportedPlatformVersion.V5_7),
         descriptor = @PluginDescriptor(
                 name = "WebP Imagery Support",
-                description = "Lisab WebP-plaatide (nt WebP MBTiles) toe",
-                longDescription = "Registreerib TwelveMonkeys WebP ImageIO lugeja, et WebP-vormingus "
-                        + "kaardiplaadid (MBTiles, GeoPackage) kuvataks."),
+                description = "Adds support for WebP imagery tiles (e.g. WebP MBTiles)",
+                longDescription = "Registers the TwelveMonkeys WebP ImageIO reader so that map tiles "
+                        + "stored as WebP (MBTiles, GeoPackage) are displayed."),
         autoStartMode = AutoStartMode.background)
 @LibraryDependency("org.slf4j.slf4j-api")
 public class WebPSupportPlugin extends AAppPlugin
 {
     static
     {
-        // Võimalikult vara: klassi initsialiseerimisel, enne start()-i.
+        // As early as possible: on class initialization, before start().
         WebPRegistration.register();
     }
 
@@ -46,7 +46,7 @@ public class WebPSupportPlugin extends AAppPlugin
     @Override
     public void stop()
     {
-        // Lugeja jääb registreerituks: juba laaditud kaardikihid vajavad seda edasi.
+        // Keep the reader registered: already loaded imagery layers still need it.
     }
 
     @Override

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Ehitab TAKX-i plugina ilma TAK.gov Artifactoryta: kompileerib paigaldatud TAKX-i jar-ide vastu
-# ja pakib TwelveMonkeys WebP dekoodri samasse jar-faili.
+# Builds the TAKX plugin without TAK.gov Artifactory: compiles against the jars of an installed TAKX
+# and bundles the TwelveMonkeys WebP decoder into the same jar.
 #
-# Kasutus:  ./build.sh            (TAKX vaikimisi C:/Program Files/TAKX)
-#           TAKX_HOME=... ./build.sh
+# Usage:  ./build.sh            (TAKX defaults to C:/Program Files/TAKX)
+#         TAKX_HOME=... ./build.sh
 set -euo pipefail
 
 VERSION=1.0.0
@@ -13,10 +13,9 @@ sep=":"; case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) sep=";"; ROOT="$(cd "$ROOT"
 OUT="$ROOT/build"
 JAR="$OUT/plugin.webp-$VERSION.jar"
 
-[ -f "$TAKX_HOME/load/platform-5.8.0.jar" ] || { echo "TAKX-i ei leitud: $TAKX_HOME"; exit 1; }
+[ -f "$TAKX_HOME/load/platform-5.8.0.jar" ] || { echo "TAKX not found: $TAKX_HOME"; exit 1; }
 
-
-# Kompileerimise klassirada: TAKX-i platvorm + kõik moodulid (ainult kompileerimiseks, jar-i ei lähe)
+# Compile classpath: TAKX platform + all modules (compile only, not bundled)
 CP="$TAKX_HOME/load/platform-5.8.0.jar"
 while IFS= read -r j; do CP="$CP$sep$j"; done < <(find "$TAKX_HOME/modules" -name '*.jar')
 for j in "$ROOT"/lib/*.jar; do CP="$CP$sep$j"; done
@@ -26,7 +25,7 @@ javac --release 17 -encoding UTF-8 -proc:none -cp "$CP" -d "$OUT/classes" \
     $(find "$ROOT/src/main/java" -name '*.java')
 cp -r "$ROOT/src/main/resources/." "$OUT/classes/"
 
-# TwelveMonkeys klassid sisse (ilma META-INF-ita, et miski ei registreeruks ServiceLoaderi kaudu)
+# Bundle TwelveMonkeys classes (without META-INF, so nothing self-registers via ServiceLoader)
 (cd "$OUT/classes" && for j in "$ROOT"/lib/*.jar; do unzip -q -o "$j"; done && rm -rf META-INF)
 mkdir -p "$OUT/classes/META-INF/licenses"
 cp "$ROOT/lib/TWELVEMONKEYS-LICENSE.txt" "$OUT/classes/META-INF/licenses/"
@@ -39,4 +38,4 @@ Platform-Version: 5.8.0
 EOF
 
 jar --create --file "$JAR" --manifest "$OUT/MANIFEST.MF" -C "$OUT/classes" .
-echo "Valmis: $JAR"
+echo "Built: $JAR"
