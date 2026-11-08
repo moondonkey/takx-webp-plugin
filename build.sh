@@ -13,10 +13,13 @@ sep=":"; case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) sep=";"; ROOT="$(cd "$ROOT"
 OUT="$ROOT/build"
 JAR="$OUT/plugin.webp-$VERSION.jar"
 
-[ -f "$TAKX_HOME/load/platform-5.8.0.jar" ] || { echo "TAKX not found: $TAKX_HOME"; exit 1; }
+PLATFORM_JAR="$(ls "$TAKX_HOME"/load/platform-*.jar 2>/dev/null | sort -V | tail -1 || true)"
+[ -n "$PLATFORM_JAR" ] || { echo "TAKX not found: $TAKX_HOME"; exit 1; }
+PLATFORM_VERSION="$(basename "$PLATFORM_JAR" .jar)"; PLATFORM_VERSION="${PLATFORM_VERSION#platform-}"
+echo "TAKX platform $PLATFORM_VERSION ($PLATFORM_JAR)"
 
 # Compile classpath: TAKX platform + all modules (compile only, not bundled)
-CP="$TAKX_HOME/load/platform-5.8.0.jar"
+CP="$PLATFORM_JAR"
 while IFS= read -r j; do CP="$CP$sep$j"; done < <(find "$TAKX_HOME/modules" -name '*.jar')
 for j in "$ROOT"/lib/*.jar; do CP="$CP$sep$j"; done
 
@@ -34,7 +37,7 @@ cat > "$OUT/MANIFEST.MF" <<EOF
 Implementation-Version: $VERSION
 Build-Date: $(date +%F)
 Built-By: plugin.webp
-Platform-Version: 5.8.0
+Platform-Version: $PLATFORM_VERSION
 EOF
 
 jar --create --file "$JAR" --manifest "$OUT/MANIFEST.MF" -C "$OUT/classes" .
