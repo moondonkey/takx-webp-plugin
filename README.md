@@ -22,14 +22,17 @@ alpha (VP8X) WebP are supported.
 ## Install
 
 1. Download `plugin.webp-<version>.jar` from [Releases](../../releases).
-2. Copy it to `C:\Program Files\TAKX\plugins\` (requires administrator rights).
+2. Copy it to the TAKX `plugins` directory:
+   - Windows: `C:\Program Files\TAKX\plugins\` (requires administrator rights)
+   - Linux: `/opt/TAKX/plugins/` (default install location; note the upper-case `TAKX`)
 3. Restart TAKX.
-4. `takx.log` (in `C:\ProgramData\TAKX\ProjectData\Projects\<project>\`) should contain
-   `WebP ImageIO reader registered`.
+4. `takx.log` in the project directory should contain `WebP ImageIO reader registered`:
+   - Windows: `C:\ProgramData\TAKX\ProjectData\Projects\<project>\`
+   - Linux: `/usr/local/TAKX/ProjectData/Projects/<project>/`
 
 If a WebP layer was added before the plugin was installed, toggle it off and on (or re-add it).
 
-Tested with TAKX 5.8.0 on Windows.
+Tested with TAKX 5.8.0 on Windows and on Linux (Ubuntu 26.04, `takx-unix-jdk17-5.8.0.sh` installer).
 
 ## Build
 
